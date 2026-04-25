@@ -1,47 +1,48 @@
-import { createContext,useContext,useState } from 'react'
-
+import { createContext, useContext, useState } from "react";
+import { PRODUCTS } from "../consts/products";
 const CartContext = createContext(null);
-
 
 export const CartContextProvider = (props) => {
   const [cart, setCart] = useState([]);
-  const PRODUCTS = [{id:1, title:'mobile-1', count:1}, {id:2, title:'mobile-2', count:1}, {id:3, title:'mobile-3', count:1}]
-  const {children} = props;
 
+  const { children } = props;
 
   const addProduct = (id) => {
     const newProduct = PRODUCTS.find((product) => product.id == id);
-  
-    const updateCart = (prev) => {
-      const existProduct = prev.some(product => product.id == id);
+    const isProductExists = prev.some((product) => product.id == id);
 
-      return existProduct
-              ? prev.map(product => product.id == id ? { ...product, count: product.count + 1 } : product)
-              : [...prev, { ...newProduct }];
-    };
-  
-    setCart(updateCart);
+    if (!isProductExists) {
+      setCart((prev) => [...prev, newProduct]);
+      return;
+    }
+
+    const updatedCart = cart.map((product) =>
+      product.id == id ? { ...product, count: product.count + 1 } : product
+    );
+
+    setCart(updatedCart);
   };
 
   const removeProduct = (id) => {
+    const existProduct = cart.find((product) => product.id == id);
 
-    const updateCart = (prev) => {
-      const existProduct = cart.find((product) => product.id == id);
+    if (existProduct.count == 1) {
+      setCart(cart.filter((product) => product.id !== id));
+      return;
+    }
 
-      return existProduct.count > 1
-      ? prev.map(product => product.id == id ? { ...product, count: product.count - 1 } : product)
-      : cart.filter((product) => product.id !== id)
-    };
-    
-    setCart(updateCart);
+    const updatedCart = cart.map((product) =>
+      product.id == id ? { ...product, count: product.count - 1 } : product
+    );
+
+    setCart(updatedCart);
   };
 
-
   return (
-    <CartContext.Provider value={{cart, addProduct, removeProduct, PRODUCTS}}>
+    <CartContext.Provider value={{ cart, addProduct, removeProduct }}>
       {children}
-      </CartContext.Provider>
-  )
+    </CartContext.Provider>
+  );
 };
 
 export const useCartContext = () => {
