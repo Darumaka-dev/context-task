@@ -9,7 +9,7 @@ export const CartContextProvider = (props) => {
 
   const addProduct = (id) => {
     const newProduct = PRODUCTS.find((product) => product.id == id);
-    const isProductExists = prev.some((product) => product.id == id);
+    const isProductExists = cart.some((product) => product.id == id);
 
     if (!isProductExists) {
       setCart((prev) => [...prev, newProduct]);
